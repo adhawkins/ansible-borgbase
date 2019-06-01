@@ -185,8 +185,13 @@ def readKeys():
 		)
 
 	keys = client.execute(SSH_LIST)
-	for key in keys['data']['sshList']:
-		readResult['keys'].append(key)
+	if 'errors' in res:
+		readResult['success']=False
+		for error in res['errors']:
+			readResult['errors'].append(error['message'])
+	else:
+		for key in keys['data']['sshList']:
+			readResult['keys'].append(key)
 
 	return readResult
 
