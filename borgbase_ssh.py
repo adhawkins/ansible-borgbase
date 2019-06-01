@@ -50,21 +50,18 @@ author:
 '''
 
 EXAMPLES = '''
-# Pass in a message
-- name: Test with a message
-	my_new_test_module:
-		name: hello world
+- name: Create key
+  borgbase_ssh:
+    state: present
+    email: a@b.c
+    password: topsecret
+    name: Key name
+    key: Key content goes here
+  register: borgbase_key
 
-# pass in a message and have changed true
-- name: Test with a message and changed output
-	my_new_test_module:
-		name: hello world
-		new: true
-
-# fail the module
-- name: Test failure of the module
-	my_new_test_module:
-		name: fail me
+- name: Dump create results
+  debug:
+    var: borgbase_key.key_id
 '''
 
 RETURN = '''
