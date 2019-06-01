@@ -190,6 +190,23 @@ def readKeys():
 
 	return readResult
 
+def addKey(name, key):
+	addResult=dict(
+			success=True,
+			errors=[]
+		)
+
+	key = client.execute(SSH_ADD, dict(name=name, keyData=key))
+
+	if 'errors' in key:
+		addResult['success']=False
+		for error in key['errors']:
+			addResult['errors'].append(error['message'])
+	else:
+		addResult['keyID']=key['data']['sshAdd']['keyAdded']['id']
+
+	return addResult
+
 def deleteKey(id):
 	deleteResult=dict(
 			success=True,
@@ -256,7 +273,16 @@ def runModule():
 
 				if keyExists != stateExists and not module.check_mode:
 					if stateExists:
-						print("Need to create key: " + module.params['name'] + "(" + foundKey['id'] + ")")
+						addResult = addKey(module.params['name'], module.params['key'])
+						if addResult['success']:
+							result['key_id']=addResult['keyID']
+						else:
+							result['msg']=''
+
+							for error in addResult['errors']:
+								result['msg']+=error
+
+							module.fail_json(**result)
 					else:
 						deleteResult = deleteKey(int(foundKey['id']))
 						if not deleteResult['success']:
