@@ -31,7 +31,9 @@ options:
 		state:
 				description:
 						- 'present' to ensure the key exists, 'absent' to ensure it doesn't. When removing key
-						match is carried out based on key name only.
+						match is carried out based on key name only. When adding key, currently only the key
+						name is checked. If it matches a key with different content, it will assume nothing
+						has changed.
 				default: present
 				choices: [ absent, present ]
 		name:
