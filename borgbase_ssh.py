@@ -196,10 +196,10 @@ def deleteKey(id):
 			errors=[]
 		)
 
-	keys = client.execute(SSH_DELETE, dict(id=id))
-	if 'errors' in keys:
+	result = client.execute(SSH_DELETE, dict(id=id))
+	if 'errors' in result:
 		deleteResult['success']=False
-		for error in keys['errors']:
+		for error in result['errors']:
 			deleteResult['errors'].append(error['message'])
 
 	return deleteResult
@@ -259,6 +259,13 @@ def runModule():
 						print("Need to create key: " + module.params['name'] + "(" + foundKey['id'] + ")")
 					else:
 						deleteResult = deleteKey(int(foundKey['id']))
+						if not deleteResult['success']:
+							result['msg']=''
+
+							for error in deleteResult['errors']:
+								result['msg']+=error
+
+							module.fail_json(**result)
 
 				module.exit_json(**result)
 			else:
