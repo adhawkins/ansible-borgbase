@@ -273,10 +273,35 @@ def runModule():
 				if keyExists:
 					result['key_id']=int(foundKey['id'])
 
-				result['changed']=keyExists!=stateExists
 
-				if keyExists != stateExists and not module.check_mode:
-					if stateExists:
+				deleteRequired=False
+				addRequired=False
+
+				if keyExists and stateExists:
+					if module.params['key'].strip()!=foundKey['keyData']:
+						deleteRequired=True
+						addRequired=True
+
+				if keyExists and not stateExists:
+					deleteRequired=True
+
+				if not keyExists and stateExists:
+					addRequired=True
+
+				result['changed']=addRequired or deleteRequired
+
+				if not module.check_mode:
+					if deleteRequired:
+						deleteResult = deleteKey(int(foundKey['id']))
+						if not deleteResult['success']:
+							result['msg']=''
+
+							for error in deleteResult['errors']:
+								result['msg']+=error
+
+							module.fail_json(**result)
+
+					if addRequired:
 						addResult = addKey(module.params['name'], module.params['key'])
 						if addResult['success']:
 							result['key_id']=addResult['keyID']
@@ -284,15 +309,6 @@ def runModule():
 							result['msg']=''
 
 							for error in addResult['errors']:
-								result['msg']+=error
-
-							module.fail_json(**result)
-					else:
-						deleteResult = deleteKey(int(foundKey['id']))
-						if not deleteResult['success']:
-							result['msg']=''
-
-							for error in deleteResult['errors']:
 								result['msg']+=error
 
 							module.fail_json(**result)
