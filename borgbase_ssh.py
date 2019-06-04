@@ -243,6 +243,10 @@ def runModule():
 				key=dict(type='str', required=False)
 		)
 
+		required_if = [
+			[ 'state', 'present', ['key']],
+		]
+
 		# seed the result dict in the object
 		# we primarily care about changed and state
 		# change is if this module effectively modified the target
@@ -258,7 +262,8 @@ def runModule():
 		# supports check mode
 		module = AnsibleModule(
 				argument_spec=module_args,
-				supports_check_mode=True
+				supports_check_mode=True,
+				required_if=required_if
 		)
 
 		stateExists= module.params['state']=='present'
