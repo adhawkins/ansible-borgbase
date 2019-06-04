@@ -312,8 +312,6 @@ def runModule():
 								result['msg']+=error
 
 							module.fail_json(**result)
-
-				module.exit_json(**result)
 			else:
 				result['msg']=''
 
@@ -328,6 +326,8 @@ def runModule():
 				result['msg']+=error
 
 			module.fail_json(**result)
+
+		module.exit_json(**result)
 
 def main():
 	if not HAS_REQUESTS:
