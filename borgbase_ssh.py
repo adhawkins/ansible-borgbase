@@ -10,7 +10,7 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = '''
 ---
-module: borgbase_sshkeys
+module: borgbase_ssh
 
 short_description: Module for managing SSH keys in borgbase.
 
