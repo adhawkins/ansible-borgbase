@@ -22,27 +22,26 @@ description:
 options:
 		email:
 				description:
-						- The email address associated with the borgbase account
+						- The email address associated with the borgbase account.
 				required: true
 		password:
 				description:
-						- The password for the borgbase account
+						- The password for the borgbase account.
 				required: true
 		state:
 				description:
 						- 'present' to ensure the key exists, 'absent' to ensure it doesn't. When removing key
-						match is carried out based on key name only. When adding key, currently only the key
-						name is checked. If it matches a key with different content, it will assume nothing
-						has changed.
+						match is carried out based on key name only. When adding key, if a key exists with the
+						same name but different content, the key will be silently replaced.
 				default: present
 				choices: [ absent, present ]
 		name:
 				description:
-						- The SSH key name
+						- The SSH key name.
 				required: true
 		key:
 				description:
-						- The SSH public key (required if state is 'present')
+						- The SSH public key (required if state is 'present').
 				required: false
 
 author:
