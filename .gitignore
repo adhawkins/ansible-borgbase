@@ -105,3 +105,4 @@ venv.bak/
 
 # Don't add test params as they might contain passwords
 params.json
+repo_params.json
