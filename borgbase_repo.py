@@ -168,8 +168,6 @@ mutation repoAdd(
       repoAdded {
         id
         name
-        region
-        repoPath
       }
     }
 }
@@ -201,8 +199,6 @@ mutation repoEdit(
       repoEdited {
         id
         name
-        region
-        repoPath
       }
     }
 }
