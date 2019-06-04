@@ -75,11 +75,13 @@ from ansible.module_utils.basic import AnsibleModule
 
 REQUESTS_IMP_ERR = None
 try:
-		import requests
-		HAS_REQUESTS = True
+	import requests
+	HAS_REQUESTS = True
 except:
-		HAS_REQUESTS = False
-		REQUESTS_IMP_ERR = traceback.format_exc()
+	import traceback
+
+	HAS_REQUESTS = False
+	REQUESTS_IMP_ERR = traceback.format_exc()
 
 LOGIN = '''
 mutation login(
@@ -331,8 +333,8 @@ def runModule():
 
 def main():
 	if not HAS_REQUESTS:
-			module.fail_json(msg=missing_required_lib("requests"),
-										 exception=LIB_REQUESTS_ERR)
+		module.fail_json(msg=missing_required_lib("requests"),
+										 exception=REQUESTS_IMP_ERR)
 
 	runModule()
 
