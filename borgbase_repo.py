@@ -76,18 +76,39 @@ author:
 '''
 
 EXAMPLES = '''
+- name: Read key from file
+  slurp:
+    src: ~/.ssh/id_rsa.pub
+  register: ssh_key
+  check_mode: yes
+
 - name: Create key
   borgbase_ssh:
     state: present
-    email: a@b.c
-    password: topsecret
-    name: Key name
-    key: Key content goes here
+    email: "{{ borgbase_email }}"
+    password: "{{ borgbase_password }}"
+    name: "{{ whoami.stdout }}@{{ ansible_hostname }}"
+    key: "{{ ssh_key['content'] | b64decode }}"
   register: borgbase_key
 
-- name: Dump create results
-  debug:
-    var: borgbase_key.key_id
+- name: Create repo
+  borgbase_repo:
+    state: present
+    email: "{{ borgbase_email }}"
+    password: "{{ borgbase_password }}"
+    name: "{{ ansible_hostname }}"
+    full_access_keys: [ "{{ borgbase_key.key_id }}" ]
+    quota_enabled: false
+    alert_days: 1
+  register: borgbase_repo
+
+- name: Set borgbase repo id
+  set_fact:
+    borgbackup_borgbase_repo: "{{ borgbase_repo.repo_id }}"
+
+- name: Set borgbackup_ssh_host
+  set_fact:
+    borgbackup_ssh_host: "{{ borgbackup_borgbase_repo }}.repo.borgbase.com"
 '''
 
 RETURN = '''

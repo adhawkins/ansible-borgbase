@@ -49,13 +49,19 @@ author:
 '''
 
 EXAMPLES = '''
+- name: Read key from file
+  slurp:
+    src: ~/.ssh/id_rsa.pub
+  register: ssh_key
+  check_mode: yes
+
 - name: Create key
   borgbase_ssh:
     state: present
-    email: a@b.c
-    password: topsecret
-    name: Key name
-    key: Key content goes here
+    email: "{{ borgbase_email }}"
+    password: "{{ borgbase_password }}"
+    name: "{{ whoami.stdout }}@{{ ansible_hostname }}"
+    key: "{{ ssh_key['content'] | b64decode }}"
   register: borgbase_key
 
 - name: Dump create results
