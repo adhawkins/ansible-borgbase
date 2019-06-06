@@ -119,6 +119,7 @@ repo_id:
 '''
 
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.borgbase_client import BorgBaseClient
 
 REQUESTS_IMP_ERR = None
 try:
@@ -130,133 +131,7 @@ except:
 	HAS_REQUESTS = False
 	REQUESTS_IMP_ERR = traceback.format_exc()
 
-LOGIN = '''
-mutation login(
-	$email: String!
-	$password: String!
-	$otp: String
-	) {
-		login(
-			username: $email
-			password: $password
-			otp: $otp
-		) {
-			user {
-				id
-			}
-		}
-}
-'''
-
-REPO_LIST = '''
-query repoList {
-	repoList {
-		id
-		name
-		quota
-		quotaEnabled
-		alertDays
-		region
-		borgVersion
-		appendOnly
-		appendOnlyKeys
-		fullAccessKeys
-	}
-}
-'''
-
-REPO_ADD = '''
-mutation repoAdd(
-  $name: String
-  $quota: Int
-  $quotaEnabled: Boolean
-  $appendOnlyKeys: [String]
-  $fullAccessKeys: [String]
-  $alertDays: Int
-  $region: String
-  $borgVersion: String
-  ) {
-    repoAdd(
-      name: $name
-      quota: $quota
-      quotaEnabled: $quotaEnabled
-      appendOnlyKeys: $appendOnlyKeys
-      fullAccessKeys: $fullAccessKeys
-      alertDays: $alertDays
-      region: $region
-      borgVersion: $borgVersion
-    ) {
-      repoAdded {
-        id
-        name
-      }
-    }
-}
-'''
-
-REPO_EDIT = '''
-mutation repoEdit(
-  $id: String
-  $name: String
-  $quota: Int
-  $quotaEnabled: Boolean
-  $appendOnlyKeys: [String]
-  $fullAccessKeys: [String]
-  $alertDays: Int
-  $region: String
-  $borgVersion: String
-  ) {
-    repoEdit(
-      id: $id
-      name: $name
-      quota: $quota
-      quotaEnabled: $quotaEnabled
-      appendOnlyKeys: $appendOnlyKeys
-      fullAccessKeys: $fullAccessKeys
-      alertDays: $alertDays
-      region: $region
-      borgVersion: $borgVersion
-    ) {
-      repoEdited {
-        id
-        name
-      }
-    }
-}
-'''
-
-REPO_DELETE = '''
-mutation repoDelete($id: String!) {
-  repoDelete(id: $id) {
-    ok
-  }
-}
-'''
-
-class GraphQLClient:
-	def __init__(self, endpoint='https://api.borgbase.com/graphql'):
-		self.endpoint = endpoint
-		self.session = requests.session()
-
-	def login(self, **kwargs):
-		return self._send(LOGIN, kwargs)
-
-	def execute(self, query, variables=None):
-		return self._send(query, variables)
-
-	def _send(self, query, variables):
-		data = {'query': query,
-										'variables': variables}
-		headers = {'Accept': 'application/json',
-												 'Content-Type': 'application/json'}
-
-		request = self.session.post(self.endpoint, json=data, headers=headers)
-		if request.status_code != 200:
-			raise Exception("Query failed to run by returning code of {}. {}".format(request.status_code, query))
-
-		return request.json()
-
-client = GraphQLClient()
+client = BorgBaseClient()
 
 def login(email, password):
 	loginResult=dict(
@@ -279,7 +154,7 @@ def readRepos():
 			repos=[]
 		)
 
-	repos = client.execute(REPO_LIST)
+	repos = client.execute(BorgBaseClient.REPO_LIST)
 	if 'errors' in repos:
 		readResult['success']=False
 		for error in repos['errors']:
@@ -296,7 +171,7 @@ def addRepo(repoParams):
 			errors=[]
 		)
 
-	repo = client.execute(REPO_ADD, repoParams)
+	repo = client.execute(BorgBaseClient.REPO_ADD, repoParams)
 
 	if 'errors' in repo:
 		addResult['success']=False
@@ -313,7 +188,7 @@ def editRepo(repoParams):
 			errors=[]
 		)
 
-	repo = client.execute(REPO_EDIT, repoParams)
+	repo = client.execute(BorgBaseClient.REPO_EDIT, repoParams)
 
 	if 'errors' in repo:
 		editResult['success']=False
@@ -328,7 +203,7 @@ def deleteRepo(id):
 			errors=[]
 		)
 
-	result = client.execute(REPO_DELETE, dict(id=id))
+	result = client.execute(BorgBaseClient.REPO_DELETE, dict(id=id))
 	if 'errors' in result:
 		deleteResult['success']=False
 		for error in result['errors']:

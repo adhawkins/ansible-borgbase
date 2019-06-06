@@ -77,6 +77,7 @@ key_id:
 '''
 
 from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.borgbase_client import BorgBaseClient
 
 REQUESTS_IMP_ERR = None
 try:
@@ -88,86 +89,7 @@ except:
 	HAS_REQUESTS = False
 	REQUESTS_IMP_ERR = traceback.format_exc()
 
-LOGIN = '''
-mutation login(
-	$email: String!
-	$password: String!
-	$otp: String
-	) {
-		login(
-			username: $email
-			password: $password
-			otp: $otp
-		) {
-			user {
-				id
-			}
-		}
-}
-'''
-
-SSH_LIST = '''
-query data {
-	sshList {
-		id
-		name
-		keyData
-	}
-}
-'''
-
-SSH_ADD = '''
-mutation sshAdd(
-	$name: String!
-	$keyData: String!
-	) {
-		sshAdd(
-			name: $name
-			keyData: $keyData
-		) {
-			keyAdded {
-				id
-				name
-				hashMd5
-				keyType
-				bits
-			}
-		}
-}
-'''
-
-SSH_DELETE = '''
-mutation sshDelete($id: Int!) {
-  sshDelete(id: $id) {
-    ok
-  }
-}
-'''
-
-class GraphQLClient:
-	def __init__(self, endpoint='https://api.borgbase.com/graphql'):
-		self.endpoint = endpoint
-		self.session = requests.session()
-
-	def login(self, **kwargs):
-		return self._send(LOGIN, kwargs)
-
-	def execute(self, query, variables=None):
-		return self._send(query, variables)
-
-	def _send(self, query, variables):
-		data = {'query': query,
-										'variables': variables}
-		headers = {'Accept': 'application/json',
-												 'Content-Type': 'application/json'}
-
-		request = self.session.post(self.endpoint, json=data, headers=headers)
-		if request.status_code != 200:
-			raise Exception("Query failed to run by returning code of {}. {}".format(request.status_code, query))
-
-		return request.json()
-
-client = GraphQLClient()
+client = BorgBaseClient()
 
 def login(email, password):
 	loginResult=dict(
@@ -190,7 +112,7 @@ def readKeys():
 			keys=[]
 		)
 
-	keys = client.execute(SSH_LIST)
+	keys = client.execute(BorgBaseClient.SSH_LIST)
 	if 'errors' in keys:
 		readResult['success']=False
 		for error in keys['errors']:
@@ -207,7 +129,7 @@ def addKey(name, key):
 			errors=[]
 		)
 
-	key = client.execute(SSH_ADD, dict(name=name, keyData=key))
+	key = client.execute(BorgBaseClient.SSH_ADD, dict(name=name, keyData=key))
 
 	if 'errors' in key:
 		addResult['success']=False
@@ -224,7 +146,7 @@ def deleteKey(id):
 			errors=[]
 		)
 
-	result = client.execute(SSH_DELETE, dict(id=id))
+	result = client.execute(BorgBaseClient.SSH_DELETE, dict(id=id))
 	if 'errors' in result:
 		deleteResult['success']=False
 		for error in result['errors']:
