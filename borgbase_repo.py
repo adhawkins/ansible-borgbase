@@ -17,62 +17,62 @@ short_description: Module for managing repos in borgbase.
 version_added: "2.4"
 
 description:
-		- "Module for managing repos in borgbase."
+  "Module for managing repos in borgbase."
 
 options:
-		email:
-				description:
-						- The email address associated with the borgbase account
-				required: true
-		password:
-				description:
-						- The password for the borgbase account
-				required: true
-		state:
-				description:
-						- 'present' to ensure the repo exists, 'absent' to ensure it doesn't.
-				default: present
-				choices: [ absent, present ]
-		alert_days:
-				description:
-						- Number of days to send alerts if no activity detected
-				required: false
-		append_only:
-				description:
-						- True if repo is append only
-				required: false
-		append_only_keys:
-				description:
-						- List of keys for append only access
-				required: false
-		borg_version:
-				description:
-						- Version of borg to run on this repo
-				required: false
-		full_access_keys:
-				description:
-						- List of keys for full access
-				required: true
-		name:
-				description:
-						- Repo name
-				required: true
-		quota:
-				description:
-						- Disk quota for this repo (MB)
-				required: false
-		quota_enabled:
-				description:
-						- Whether quota is enabled for this repo
-				required: false
-		region:
-				description:
-						- Repo region
-				choices: [ eu, us ]
-				required: false
-				default: eu
+  email:
+    description:
+      "The email address associated with the borgbase account."
+    required: true
+  password:
+    description:
+      "The password for the borgbase account."
+    required: true
+  state:
+    description:
+      "'present' to ensure the repo exists, 'absent' to ensure it doesn't."
+    default: present
+    choices: [ absent, present ]
+  alert_days:
+    description:
+      "Number of days to send alerts if no activity detected."
+    required: false
+  append_only:
+    description:
+      "True if repo is append only."
+    required: false
+  append_only_keys:
+    description:
+      "List of keys for append only access."
+    required: false
+  borg_version:
+    description:
+      "Version of borg to run on this repo."
+    required: false
+  full_access_keys:
+    description:
+      "List of keys for full access."
+    required: true
+  name:
+    description:
+      "Repo name."
+    required: true
+  quota:
+    description:
+      "Disk quota for this repo (MB)."
+    required: false
+  quota_enabled:
+    description:
+      "Whether quota is enabled for this repo."
+    required: false
+  region:
+    description:
+      "Repo region."
+    choices: [ eu, us ]
+    required: false
+    default: eu
 author:
-		- Andy Hawkins (@adhawkinsgh)
+  Andy Hawkins (@adhawkinsgh)
 '''
 
 EXAMPLES = '''
@@ -113,9 +113,9 @@ EXAMPLES = '''
 
 RETURN = '''
 repo_id:
-		description: The ID of the repo that was created or deleted
-		type: int
-		returned: always
+  description: The ID of the repo that was created or deleted.
+  type: int
+  returned: always
 '''
 
 from ansible.module_utils.basic import AnsibleModule
