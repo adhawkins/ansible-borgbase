@@ -121,16 +121,6 @@ repo_id:
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.borgbase_client import BorgBaseClient
 
-REQUESTS_IMP_ERR = None
-try:
-	import requests
-	HAS_REQUESTS = True
-except:
-	import traceback
-
-	HAS_REQUESTS = False
-	REQUESTS_IMP_ERR = traceback.format_exc()
-
 client = BorgBaseClient()
 
 def login(email, password):
@@ -360,10 +350,6 @@ def runModule():
 		module.exit_json(**result)
 
 def main():
-	if not HAS_REQUESTS:
-		module.fail_json(msg=missing_required_lib("requests"),
-									 exception=REQUESTS_IMP_ERR)
-
 	runModule()
 
 if __name__ == '__main__':

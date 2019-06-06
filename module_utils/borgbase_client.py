@@ -1,4 +1,6 @@
-import requests
+from ansible.module_utils.urls import Request
+
+import json
 
 class BorgBaseClient:
 	LOGIN = '''
@@ -144,7 +146,7 @@ mutation repoDelete($id: String!) {
 
 	def __init__(self, endpoint='https://api.borgbase.com/graphql'):
 		self.endpoint = endpoint
-		self.session = requests.session()
+		self.session = Request()
 
 	def login(self, **kwargs):
 		return self._send(self.LOGIN, kwargs)
@@ -154,12 +156,14 @@ mutation repoDelete($id: String!) {
 
 	def _send(self, query, variables):
 		data = {'query': query,
-										'variables': variables}
+				'variables': variables}
+
 		headers = {'Accept': 'application/json',
-												 'Content-Type': 'application/json'}
+				'Content-Type': 'application/json'}
 
-		request = self.session.post(self.endpoint, json=data, headers=headers)
-		if request.status_code != 200:
-			raise Exception("Query failed to run by returning code of {}. {}".format(request.status_code, query))
+		request = self.session.open('POST', self.endpoint, data=json.dumps(data), headers=headers)
 
-		return request.json()
+		if request.getcode() != 200:
+			raise Exception("Query failed to run by returning code of {}. {}".format(request.getcode(), query))
+
+		return json.loads(request.read())
