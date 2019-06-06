@@ -10,42 +10,42 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = '''
 ---
-module: borgbase_ssh
+module: "borgbase_ssh"
 
-short_description: Module for managing SSH keys in borgbase.
+short_description: "Module for managing SSH keys in borgbase."
 
 version_added: "2.4"
 
 description:
-		- "Module for managing SSH keys in borgbase."
+  "Module for managing SSH keys in borgbase."
 
 options:
-		email:
-				description:
-						- The email address associated with the borgbase account.
-				required: true
-		password:
-				description:
-						- The password for the borgbase account.
-				required: true
-		state:
-				description:
-						- 'present' to ensure the key exists, 'absent' to ensure it doesn't. When removing key
-						match is carried out based on key name only. When adding key, if a key exists with the
-						same name but different content, the key will be silently replaced.
-				default: present
-				choices: [ absent, present ]
-		name:
-				description:
-						- The SSH key name.
-				required: true
-		key:
-				description:
-						- The SSH public key (required if state is 'present').
-				required: false
+  email:
+    description:
+      "The email address associated with the borgbase account."
+    required: true
+  password:
+    description:
+      "The password for the borgbase account."
+    required: true
+  state:
+    description: >
+      'present' to ensure the key exists, 'absent' to ensure it doesn't. When removing key
+      match is carried out based on key name only. When adding key, if a key exists with the
+      same name but different content, the key will be silently replaced.
+    default: present
+    choices: [ absent, present ]
+  name:
+    description:
+      "The SSH key name."
+    required: true
+  key:
+    description:
+      "The SSH public key (required if state is 'present')."
+    required: false
 
 author:
-		- Andy Hawkins (@adhawkinsgh)
+  Andy Hawkins (@adhawkinsgh)
 '''
 
 EXAMPLES = '''
@@ -71,9 +71,9 @@ EXAMPLES = '''
 
 RETURN = '''
 key_id:
-		description: The ID of the key that was created or deleted
-		type: int
-		returned: always
+  description: The ID of the key that was created or deleted.
+  type: int
+  returned: always
 '''
 
 from ansible.module_utils.basic import AnsibleModule
