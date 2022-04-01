@@ -277,7 +277,7 @@ def runModule():
             if repos['success']:
                 newParams = dict(
                       name=module.params['name'],
-                      quota=module.params['quota'],
+                      quota=module.params['quota'] if module.params['quota'] else "0",
                       quotaEnabled=module.params['quota_enabled'],
                       appendOnly=module.params['append_only'],
                       appendOnlyKeys=module.params['append_only_keys'],
