@@ -107,7 +107,7 @@ mutation repoAdd(
 
 	REPO_EDIT = '''
 mutation repoEdit(
-  $id: String
+  $id: String!
   $name: String
   $quota: Int
   $quotaEnabled: Boolean
