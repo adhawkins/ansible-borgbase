@@ -51,6 +51,7 @@ options:
         description:
             "Version of borg to run on this repo."
         required: false
+        choices: [ latest, 1.1.x, 1.2.x ]
     full_access_keys:
         description:
             "List of keys for full access."
@@ -227,6 +228,12 @@ def reposMatch(repo1, repo2):
         repo1['borgVersion']==repo2['borgVersion']
 
 def runModule():
+        borgbaseVersions = {
+            'latest': 'LATEST',
+            '1.1.x': 'V_1_1_X',
+            '1.2.x': 'V_1_2_X'
+        }
+
         # define available arguments/parameters a user can pass to the module
         module_args = dict(
                 email=dict(type='str', required=True),
@@ -235,7 +242,7 @@ def runModule():
                 alert_days=dict(type='int', required=False, default=7),
                 append_only=dict(type='bool', required=False, default=False),
                 append_only_keys=dict(type='list', required=False, default=[]),
-                borg_version=dict(type='str', required=False, choices=['LATEST', '1.1.x'], default='LATEST'),
+                borg_version=dict(type='str', required=False, choices=borgbaseVersions.keys(), default='latest'),
                 full_access_keys=dict(type='list', required=True),
                 name=dict(type='str', required=True),
                 quota=dict(type='int', required=False),
@@ -284,7 +291,7 @@ def runModule():
                       fullAccessKeys=module.params['full_access_keys'],
                       alertDays=module.params['alert_days'],
                       region=module.params['region'],
-                      borgVersion=module.params['borg_version'],
+                      borgVersion=borgbaseVersions[module.params['borg_version']],
                     )
 
                 foundRepo=findRepo(repos['repos'], module.params['name'])
