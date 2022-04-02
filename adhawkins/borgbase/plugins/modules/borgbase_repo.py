@@ -121,7 +121,7 @@ repo_id:
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.borgbase_client import BorgBaseClient
+from ansible_collections.adhawkins.borgbase.plugins.module_utils.borgbase_client import BorgBaseClient
 
 client = BorgBaseClient()
 
@@ -184,7 +184,7 @@ def editRepo(repoParams):
 
     if 'errors' in repo:
         editResult['success']=False
-        for error in key['errors']:
+        for error in repo['errors']:
             editResult['errors'].append(error['message'])
 
     return editResult

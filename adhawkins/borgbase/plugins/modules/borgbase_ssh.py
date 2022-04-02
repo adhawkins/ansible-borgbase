@@ -79,7 +79,7 @@ key_id:
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.borgbase_client import BorgBaseClient
+from ansible_collections.adhawkins.borgbase.plugins.module_utils.borgbase_client import BorgBaseClient
 
 client = BorgBaseClient()
 
