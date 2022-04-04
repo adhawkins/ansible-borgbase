@@ -1,0 +1,33 @@
+name: Test modules
+
+on:
+  workflow_dispatch:
+  workflow_call:
+  push:
+  pull_request:
+
+jobs:
+  test-modules:
+    name: Run tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ inputs.python }}
+
+      - name: Install Ansible
+        run: pip install ansible
+
+      - name: Make collection directory
+        run: mkdir ./collections
+
+      - name: Install module
+        run: ansible-galaxy collection install . -p ./collections
+
+      - name: Run test
+        working-directory: ./collections/ansible_collections/adhawkins/borgbase
+        run: ansible-test sanity --docker --color yes -v
