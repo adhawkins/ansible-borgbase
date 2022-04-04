@@ -25,11 +25,15 @@ options:
     email:
         description:
             "The email address associated with the borgbase account."
-        required: true
+        required: false
     password:
         description:
             "The password for the borgbase account."
-        required: true
+        required: false
+    apikey:
+        description:
+            "The borgbase API key."
+        required: false
     state:
         description: >
             'present' to ensure the key exists, 'absent' to ensure it doesn't. When removing key
@@ -97,14 +101,14 @@ def login(email, password):
 
     return loginResult
 
-def readKeys():
+def readKeys(apiKey = None):
     readResult=dict(
             success=True,
             errors=[],
             keys=[]
         )
 
-    keys = client.execute(BorgBaseClient.SSH_LIST)
+    keys = client.execute(BorgBaseClient.SSH_LIST, apiKey = apiKey)
     if 'errors' in keys:
         readResult['success']=False
         for error in keys['errors']:
@@ -115,13 +119,13 @@ def readKeys():
 
     return readResult
 
-def addKey(name, key):
+def addKey(name, key, apiKey = None):
     addResult=dict(
             success=True,
             errors=[]
         )
 
-    key = client.execute(BorgBaseClient.SSH_ADD, dict(name=name, keyData=key))
+    key = client.execute(BorgBaseClient.SSH_ADD, dict(name=name, keyData=key), apiKey = apiKey)
 
     if 'errors' in key:
         addResult['success']=False
@@ -132,13 +136,13 @@ def addKey(name, key):
 
     return addResult
 
-def deleteKey(id):
+def deleteKey(id, apiKey = None):
     deleteResult=dict(
             success=True,
             errors=[]
         )
 
-    result = client.execute(BorgBaseClient.SSH_DELETE, dict(id=id))
+    result = client.execute(BorgBaseClient.SSH_DELETE, dict(id=id), apiKey = apiKey)
     if 'errors' in result:
         deleteResult['success']=False
         for error in result['errors']:
@@ -156,15 +160,28 @@ def findKey(keys, name):
 def runModule():
         # define available arguments/parameters a user can pass to the module
         module_args = dict(
-                email=dict(type='str', required=True),
-                password=dict(type='str', required=True, no_log=True),
+                email=dict(type='str', default=None),
+                password=dict(type='str', default=None, no_log=True),
+                apikey=dict(type='str', default=None, no_log=True),
                 state=dict(type='str', required=False, choices=['absent', 'present'], default='present'),
                 name=dict(type='str', required=True),
                 key=dict(type='str', required=False)
         )
 
         required_if = [
-            [ 'state', 'present', ['key']],
+            ( 'quota_enabled', True, ['quota'] ),
+        ]
+
+        required_one_of = [
+            ( 'email', 'apikey' )
+        ]
+
+        required_together = [
+            ( 'email', 'password' )
+        ]
+
+        mutually_exclusive = [
+            ( 'email', 'apikey' )
         ]
 
         # seed the result dict in the object
@@ -183,15 +200,20 @@ def runModule():
         module = AnsibleModule(
                 argument_spec=module_args,
                 supports_check_mode=True,
-                required_if=required_if
+                required_if=required_if,
+                required_one_of=required_one_of,
+                required_together=required_together,
+                mutually_exclusive=mutually_exclusive,
         )
 
         stateExists= module.params['state']=='present'
         # Get a list of keys in the account
 
-        loginResult = login(module.params['email'], module.params['password'])
-        if loginResult['success']:
-            keys = readKeys()
+        if module.params['email'] and module.params['password']:
+            loginResult = login(module.params['email'], module.params['password'])
+
+        if (module.params['apikey'] and (not module.params['email'] and not module.params['password'])) or loginResult['success']:
+            keys = readKeys(apiKey = module.params['apikey'])
 
             if keys['success']:
                 foundKey = findKey(keys['keys'], module.params['name'])
@@ -218,7 +240,7 @@ def runModule():
 
                 if not module.check_mode:
                     if deleteRequired:
-                        deleteResult = deleteKey(int(foundKey['id']))
+                        deleteResult = deleteKey(int(foundKey['id']), apiKey = module.params['apikey'])
                         if not deleteResult['success']:
                             result['msg']=''
 
@@ -228,7 +250,7 @@ def runModule():
                             module.fail_json(**result)
 
                     if addRequired:
-                        addResult = addKey(module.params['name'], module.params['key'])
+                        addResult = addKey(module.params['name'], module.params['key'], apiKey = module.params['apikey'])
                         if addResult['success']:
                             result['key_id']=addResult['keyID']
                         else:

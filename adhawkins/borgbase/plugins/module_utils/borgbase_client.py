@@ -151,15 +151,18 @@ mutation repoDelete($id: String!) {
 	def login(self, **kwargs):
 		return self._send(self.LOGIN, kwargs)
 
-	def execute(self, query, variables=None):
-		return self._send(query, variables)
+	def execute(self, query, variables=None, apiKey = None):
+		return self._send(query, variables, apiKey = apiKey)
 
-	def _send(self, query, variables):
+	def _send(self, query, variables, apiKey = None):
 		data = {'query': query,
 				'variables': variables}
 
 		headers = {'Accept': 'application/json',
 				'Content-Type': 'application/json'}
+
+		if apiKey:
+			headers['Authorization'] = "Bearer " + apiKey
 
 		request = self.session.open('POST', self.endpoint, data=json.dumps(data), headers=headers)
 

@@ -25,11 +25,15 @@ options:
     email:
         description:
             "The email address associated with the borgbase account."
-        required: true
+        required: false
     password:
         description:
             "The password for the borgbase account."
-        required: true
+        required: false
+    apikey:
+        description:
+            "The borgbase API key."
+        required: false
     state:
         description:
             "'present' to ensure the repo exists, 'absent' to ensure it doesn't."
@@ -140,14 +144,14 @@ def login(email, password):
 
     return loginResult
 
-def readRepos():
+def readRepos(apiKey = None):
     readResult=dict(
             success=True,
             errors=[],
             repos=[]
         )
 
-    repos = client.execute(BorgBaseClient.REPO_LIST)
+    repos = client.execute(BorgBaseClient.REPO_LIST, apiKey = apiKey)
     if 'errors' in repos:
         readResult['success']=False
         for error in repos['errors']:
@@ -158,13 +162,13 @@ def readRepos():
 
     return readResult
 
-def addRepo(repoParams):
+def addRepo(repoParams, apiKey = None):
     addResult=dict(
             success=True,
             errors=[]
         )
 
-    repo = client.execute(BorgBaseClient.REPO_ADD, repoParams)
+    repo = client.execute(BorgBaseClient.REPO_ADD, repoParams, apiKey = apiKey)
 
     if 'errors' in repo:
         addResult['success']=False
@@ -175,13 +179,13 @@ def addRepo(repoParams):
 
     return addResult
 
-def editRepo(repoParams):
+def editRepo(repoParams, apiKey = None):
     editResult=dict(
             success=True,
             errors=[]
         )
 
-    repo = client.execute(BorgBaseClient.REPO_EDIT, repoParams)
+    repo = client.execute(BorgBaseClient.REPO_EDIT, repoParams, apiKey = apiKey)
 
     if 'errors' in repo:
         editResult['success']=False
@@ -190,13 +194,13 @@ def editRepo(repoParams):
 
     return editResult
 
-def deleteRepo(id):
+def deleteRepo(id, apiKey = None):
     deleteResult=dict(
             success=True,
             errors=[]
         )
 
-    result = client.execute(BorgBaseClient.REPO_DELETE, dict(id=id))
+    result = client.execute(BorgBaseClient.REPO_DELETE, dict(id=id), apiKey = apiKey)
     if 'errors' in result:
         deleteResult['success']=False
         for error in result['errors']:
@@ -236,8 +240,9 @@ def runModule():
 
         # define available arguments/parameters a user can pass to the module
         module_args = dict(
-                email=dict(type='str', required=True),
-                password=dict(type='str', required=True, no_log=True),
+                email=dict(type='str', default=None),
+                password=dict(type='str', default=None, no_log=True),
+                apikey=dict(type='str', default=None, no_log=True),
                 state=dict(type='str', required=False, choices=['absent', 'present'], default='present'),
                 alert_days=dict(type='int', required=False, default=7),
                 append_only=dict(type='bool', required=False, default=False),
@@ -251,7 +256,19 @@ def runModule():
         )
 
         required_if = [
-            [ 'quota_enabled', True, ['quota']],
+            ( 'quota_enabled', True, ['quota'] ),
+        ]
+
+        required_one_of = [
+            ( 'email', 'apikey' )
+        ]
+
+        required_together = [
+            ( 'email', 'password' )
+        ]
+
+        mutually_exclusive = [
+            ( 'email', 'apikey' )
         ]
 
         # seed the result dict in the object
@@ -271,15 +288,21 @@ def runModule():
         module = AnsibleModule(
                 argument_spec=module_args,
                 supports_check_mode=True,
-                required_if=required_if
+                required_if=required_if,
+                required_one_of=required_one_of,
+                required_together=required_together,
+                mutually_exclusive=mutually_exclusive,
         )
 
         stateExists= module.params['state']=='present'
-        # Get a list of keys in the account
 
-        loginResult = login(module.params['email'], module.params['password'])
-        if loginResult['success']:
-            repos = readRepos()
+        if module.params['email'] and module.params['password']:
+            loginResult = login(module.params['email'], module.params['password'])
+
+        if (module.params['apikey'] and (not module.params['email'] and not module.params['password'])) or loginResult['success']:
+            # Get a list of keys in the account
+
+            repos = readRepos(apiKey = module.params['apikey'])
 
             if repos['success']:
                 newParams = dict(
@@ -305,7 +328,7 @@ def runModule():
                             result['changed']=True
 
                             if not module.check_mode:
-                                editResult = editRepo(newParams)
+                                editResult = editRepo(newParams, apiKey = module.params['apikey'])
 
                                 if not editResult['success']:
                                     result['msg']=''
@@ -318,7 +341,7 @@ def runModule():
                         result['changed']=True
 
                         if not module.check_mode:
-                            deleteResult = deleteRepo(foundRepo['id'])
+                            deleteResult = deleteRepo(foundRepo['id'], apiKey = module.params['apikey'])
                             if not deleteResult['success']:
                                 result['msg']=''
 
@@ -330,7 +353,7 @@ def runModule():
                     if stateExists:
                         result['changed']=True
                         if not module.check_mode:
-                            addResult=addRepo(newParams)
+                            addResult=addRepo(newParams, apiKey = module.params['apikey'])
 
                             if addResult['success']:
                                 result['repo_id']=addResult['repoID']
