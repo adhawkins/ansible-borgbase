@@ -1,2 +1,3 @@
-# ansible-borgbase
-Ansible modules for managing borgbase SSH keys and repositories
+# Ansible Collection - adhawkins.borgbase
+
+Documentation for the collection.
