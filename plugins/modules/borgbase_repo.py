@@ -16,7 +16,7 @@ module: borgbase_repo
 
 short_description: Module for managing repos in borgbase.
 
-version_added: "2.4"
+version_added: "1.0.0"
 
 description:
     "Module for managing repos in borgbase."

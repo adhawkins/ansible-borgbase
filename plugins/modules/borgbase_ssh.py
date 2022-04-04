@@ -16,7 +16,7 @@ module: "borgbase_ssh"
 
 short_description: "Module for managing SSH keys in borgbase."
 
-version_added: "2.4"
+version_added: "1.0.0"
 
 description:
     "Module for managing SSH keys in borgbase."
@@ -36,8 +36,8 @@ options:
         required: false
     state:
         description: >
-            'present' to ensure the key exists, 'absent' to ensure it doesn't. When removing key
-            match is carried out based on key name only. When adding key, if a key exists with the
+            'present' to ensure the key exists, 'absent' to ensure it doesn't. When removing a key
+            the match is carried out based on key name only. When adding a key, if a key exists with the
             same name but different content, the key will be silently replaced.
         default: present
         choices: [ absent, present ]
