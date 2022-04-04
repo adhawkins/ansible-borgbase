@@ -1,0 +1,33 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  workflow_call:
+  push:
+  pull_request:
+
+jobs:
+  build-docs:
+    name: Build Ansible Docs
+    permissions:
+      contents: read
+    uses: ansible-community/github-docs-build/.github/workflows/_shared-docs-build-push.yml@main
+    with:
+      collection-name: adhawkins.borgbase
+      collection-path: adhawkins/borgbase
+
+  publish-docs:
+    name: Publish documentation
+    runs-on: ubuntu-latest
+    needs: build-docs
+    steps:
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+    - uses: actions/download-artifact@v2
+
+    - uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ${{github.workspace}}/${{needs.build-docs.outputs.artifact-name}}
