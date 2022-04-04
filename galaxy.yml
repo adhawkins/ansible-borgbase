@@ -19,7 +19,6 @@ readme: README.md
 authors:
 - Andy Hawkins <andy@gently.org.uk>
 
-
 ### OPTIONAL but strongly recommended
 
 # A short summary description of the collection
@@ -28,7 +27,7 @@ description: Manage borgbase repositories and SSH keys
 # Either a single license or a list of licenses for content inside of a collection. Ansible Galaxy currently only
 # accepts L(SPDX,https://spdx.org/licenses/) licenses. This key is mutually exclusive with 'license_file'
 license:
-- GPL-2.0-or-later
+- GPL-3.0-or-later
 
 # The path to the license file for the collection. This path is relative to the root of the collection. This key is
 # mutually exclusive with 'license'
@@ -48,10 +47,10 @@ dependencies: {}
 repository: http://github.com/adhawkins/ansible-borgbase
 
 # The URL to any online docs
-documentation: http://docs.example.com
+documentation: https://adhawkins.github.io/ansible-borgbase/
 
 # The URL to the homepage of the collection/project
-homepage: http://example.com
+homepage: http://github.com/adhawkins/ansible-borgbase
 
 # The URL to the collection issue tracker
-issues: http://example.com/issue/tracker
+issues: https://github.com/adhawkins/ansible-borgbase/issues
