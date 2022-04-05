@@ -26,7 +26,13 @@ jobs:
         run: mkdir ./collections
 
       - name: Install module
-        run: ansible-galaxy collection install . -p ./collections
+        run: ansible-galaxy collection install . -p ${{github.workspace}}/collections
+
+      - name: Run ansible-doc on repo
+        run: ansible-doc -v -M ${{github.workspace}}/collections adhawkins.borgbase.borgbase_repo
+
+      - name: Run ansible-doc on ssh
+        run: ansible-doc -v -M ${{github.workspace}}/collections adhawkins.borgbase.borgbase_ssh
 
       - name: Run test
         working-directory: ./collections/ansible_collections/adhawkins/borgbase
