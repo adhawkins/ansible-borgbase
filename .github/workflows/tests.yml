@@ -13,6 +13,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          path: ${{github.workspace}}/ansible_collections/adhawkins/borgbase
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -22,18 +24,19 @@ jobs:
       - name: Install Ansible
         run: pip install ansible
 
-      - name: Make collection directory
-        run: mkdir ./collections
-
       - name: Install module
-        run: ansible-galaxy collection install . -p ${{github.workspace}}/collections
+        working-directory: ${{github.workspace}}/ansible_collections/adhawkins/borgbase
+        run: ansible-galaxy collection install .
+
+      # - name: List modules
+      #   run: ansible-doc -v -l
 
       - name: Run ansible-doc on repo
-        run: ansible-doc -v -M ${{github.workspace}}/collections adhawkins.borgbase.borgbase_repo
+        run: ansible-doc -v adhawkins.borgbase.borgbase_repo
 
       - name: Run ansible-doc on ssh
-        run: ansible-doc -v -M ${{github.workspace}}/collections adhawkins.borgbase.borgbase_ssh
+        run: ansible-doc -v adhawkins.borgbase.borgbase_ssh
 
       - name: Run test
-        working-directory: ./collections/ansible_collections/adhawkins/borgbase
+        working-directory: ${{github.workspace}}/ansible_collections/adhawkins/borgbase
         run: ansible-test sanity --docker --color yes -v
