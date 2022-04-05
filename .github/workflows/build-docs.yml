@@ -1,10 +1,10 @@
 name: Build docs
 
 on:
-  workflow_dispatch:
   workflow_call:
   push:
-  pull_request:
+    tags:
+      - '*'
 
 jobs:
   build-docs:
