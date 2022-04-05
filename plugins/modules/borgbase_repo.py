@@ -75,7 +75,7 @@ options:
     full_access_keys:
         description:
             "List of keys for full access."
-        required: true
+        required: false
         type: list
         elements: int
     name:
@@ -282,7 +282,7 @@ def runModule():
         append_only=dict(type='bool', required=False, default=False),
         append_only_keys=dict(type='list', elements='int', required=False, default=[], no_log=False),
         borg_version=dict(type='str', required=False, choices=list(borgbaseVersions.keys()), default='latest'),
-        full_access_keys=dict(type='list', elements='int', required=True, no_log=False),
+        full_access_keys=dict(type='list', elements='int', required=False, no_log=False),
         name=dict(type='str', required=True),
         quota=dict(type='int', required=False),
         quota_enabled=dict(type='bool', required=False, default=False),
@@ -294,7 +294,8 @@ def runModule():
     ]
 
     required_one_of = [
-        ('email', 'apikey')
+        ('email', 'apikey'),
+        ('full_access_keys', 'append_only_keys')
     ]
 
     required_together = [
