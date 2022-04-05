@@ -1,0 +1,29 @@
+on:
+  push:
+    # tags:
+    #   - '*'
+
+jobs:
+  test_release:
+    uses: ./.github/workflows/tests.yml
+
+  create_release:
+    needs: [ test_release ]
+    name: Create release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: ${{github.workspace}}/ansible_collections/adhawkins/borgbase
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ inputs.python }}
+
+      - name: Install Ansible
+        run: pip install ansible
+
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
