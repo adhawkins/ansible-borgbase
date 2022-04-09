@@ -12,31 +12,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-        with:
-          path: ${{github.workspace}}/ansible_collections/adhawkins/borgbase
+    - uses: actions/checkout@v2
+      with:
+        path: ${{github.workspace}}/ansible_collections/adhawkins/borgbase
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ inputs.python }}
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ inputs.python }}
 
-      - name: Install Ansible
-        run: pip install ansible
+    - name: Install Ansible
+      run: pip install ansible
 
-      - name: Install module
-        working-directory: ${{github.workspace}}/ansible_collections/adhawkins/borgbase
-        run: ansible-galaxy collection install .
+    - name: Install module
+      working-directory: ${{github.workspace}}/ansible_collections/adhawkins/borgbase
+      run: ansible-galaxy collection install .
 
-      # - name: List modules
-      #   run: ansible-doc -v -l
+    - name: Build module
+      working-directory: ${{github.workspace}}/ansible_collections/adhawkins/borgbase
+      run: ansible-galaxy collection build --output-path ${{github.workspace}}
 
-      - name: Run ansible-doc on repo
-        run: ansible-doc -v adhawkins.borgbase.borgbase_repo
+    - name: Display
+      run: ls -l ${{github.workspace}}
 
-      - name: Run ansible-doc on ssh
-        run: ansible-doc -v adhawkins.borgbase.borgbase_ssh
+    - name: Run test
+      working-directory: ${{github.workspace}}/ansible_collections/adhawkins/borgbase
+      run: ansible-test sanity --docker --color yes -v
 
-      - name: Run test
-        working-directory: ${{github.workspace}}/ansible_collections/adhawkins/borgbase
-        run: ansible-test sanity --docker --color yes -v
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=VERSION::$(grep "^version:" ${{github.workspace}}/ansible_collections/adhawkins/borgbase/galaxy.yml  | cut -f2 -d ' ')
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: adhawkins-borgbase-${{ steps.get_version.outputs.VERSION }}
+        path: ${{github.workspace}}/*.tar.gz
