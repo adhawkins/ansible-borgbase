@@ -54,3 +54,7 @@ homepage: http://github.com/adhawkins/ansible-borgbase
 
 # The URL to the collection issue tracker
 issues: https://github.com/adhawkins/ansible-borgbase/issues
+
+build_ignore:
+  - .gitignore
+  - .github
