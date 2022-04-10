@@ -30,9 +30,24 @@ jobs:
 
     - name: Get the version
       id: get_version
-      run: echo ::set-output name=VERSION::$(grep "^version:" ${{github.workspace}}/ansible_collections/adhawkins/borgbase/galaxy.yml  | cut -f2 -d ' ')
+      run: echo ::set-output name=VERSION::$(grep "^version:" ${{ github.workspace }}/ansible_collections/adhawkins/borgbase/galaxy.yml  | cut -f2 -d ' ')
+
+    - name: Create checksum
+      working-directory: ${{github.workspace}}/adhawkins-borgbase-${{ steps.get_version.outputs.VERSION }}/
+      run: |
+        sha256sum *.tar.gz > ${{github.workspace}}/checksum.txt
 
     - uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        files: ${{github.workspace}}/adhawkins-borgbase-${{ steps.get_version.outputs.VERSION }}/*.tar.gz
+        files: |
+          ${{github.workspace}}/adhawkins-borgbase-${{ steps.get_version.outputs.VERSION }}/*.tar.gz
+          checksum.txt
+
+    - name: Upload to ansible-galaxy dev
+      run: ansible-galaxy collection publish --server https://galaxy-dev.ansible.com/ --token ${{ secrets.ANSIBLE_GALAXY_DEV_TOKEN }} ${{ github.workspace }}/adhawkins-borgbase-${{ steps.get_version.outputs.VERSION }}/*.tar.gz
+      if: "contains(github.ref, 'test')"
+
+    - name: Upload to ansible-galaxy
+      run: ansible-galaxy collection publish --token ${{ secrets.ANSIBLE_GALAXY_TOKEN }} ${{ github.workspace }}/adhawkins-borgbase-${{ steps.get_version.outputs.VERSION }}/*.tar.gz
+      if: "!contains(github.ref, 'test')"
