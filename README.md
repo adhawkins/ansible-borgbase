@@ -37,7 +37,7 @@ To use a module from the collection, please reference the full namespace, collec
     - name: Create key
       adhawkins.borgbase.borgbase_ssh:
         state: present
-        apikey: "{{ borgbase_email }}"
+        apikey: "{{ borgbase_apikey }}"
         name: "ANSIBLE-1"
         key: "{{ ssh_key['content'] | b64decode }}"
       register: borgbase_key
@@ -66,7 +66,7 @@ Or you can add the full namespace and collection name in the `collections` eleme
     - name: Create key
       borgbase_ssh:
         state: present
-        apikey: "{{ borgbase_email }}"
+        apikey: "{{ borgbase_apikey }}"
         name: "ANSIBLE-1"
         key: "{{ ssh_key['content'] | b64decode }}"
       register: borgbase_key
