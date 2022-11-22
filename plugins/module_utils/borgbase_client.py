@@ -81,13 +81,13 @@ query repoList {
 
     REPO_ADD = '''
 mutation repoAdd(
-  $name: String
+  $name: String!
   $quota: Int
   $quotaEnabled: Boolean
   $appendOnlyKeys: [String]
   $fullAccessKeys: [String]
   $alertDays: Int
-  $region: String
+  $region: String!
   $borgVersion: String
   ) {
     repoAdd(
@@ -103,6 +103,8 @@ mutation repoAdd(
       repoAdded {
         id
         name
+        region
+        repoPath
       }
     }
 }
@@ -134,6 +136,8 @@ mutation repoEdit(
       repoEdited {
         id
         name
+        region
+        repoPath
       }
     }
 }
