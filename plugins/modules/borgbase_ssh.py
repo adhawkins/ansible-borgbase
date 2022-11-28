@@ -236,7 +236,10 @@ def runModule():
             addRequired = False
 
             if keyExists and stateExists:
-                if module.params['key'].strip() != foundKey['keyData']:
+                # key provided can have a optional keyname, e.g.: "ssh-ed25519 AAAAC3Nd... root@localhost"
+                # only keep algorithm and data
+                providedKey = " ".join(module.params['key'].strip().split()[:2])
+                if providedKey != foundKey['keyData']:
                     deleteRequired = True
                     addRequired = True
 
