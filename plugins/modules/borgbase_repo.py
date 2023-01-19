@@ -64,7 +64,7 @@ options:
             "List of keys for append only access."
         required: false
         type: list
-        elements: int
+        elements: str
     borg_version:
         description:
             "Version of borg to run on this repo."
@@ -77,7 +77,7 @@ options:
             "List of keys for full access."
         required: false
         type: list
-        elements: int
+        elements: str
     name:
         description:
             "Repo name."
@@ -280,9 +280,9 @@ def runModule():
         state=dict(type='str', required=False, choices=['absent', 'present'], default='present'),
         alert_days=dict(type='int', required=False, default=7),
         append_only=dict(type='bool', required=False, default=False),
-        append_only_keys=dict(type='list', elements='int', required=False, default=[], no_log=False),
+        append_only_keys=dict(type='list', elements='str', required=False, default=[], no_log=False),
         borg_version=dict(type='str', required=False, choices=list(borgbaseVersions.keys()), default='latest'),
-        full_access_keys=dict(type='list', elements='int', required=False, no_log=False),
+        full_access_keys=dict(type='list', elements='str', required=False, no_log=False),
         name=dict(type='str', required=True),
         quota=dict(type='int', required=False),
         quota_enabled=dict(type='bool', required=False, default=False),
@@ -342,7 +342,7 @@ def runModule():
         if repos['success']:
             newParams = dict(
                 name=module.params['name'],
-                quota=module.params['quota'] if module.params['quota'] else "0",
+                quota=module.params['quota'] if module.params['quota'] else 0,
                 quotaEnabled=module.params['quota_enabled'],
                 appendOnly=module.params['append_only'],
                 appendOnlyKeys=module.params['append_only_keys'],
