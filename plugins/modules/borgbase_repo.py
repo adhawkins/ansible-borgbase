@@ -282,7 +282,7 @@ def runModule():
         append_only=dict(type='bool', required=False, default=False),
         append_only_keys=dict(type='list', elements='str', required=False, default=[], no_log=False),
         borg_version=dict(type='str', required=False, choices=list(borgbaseVersions.keys()), default='latest'),
-        full_access_keys=dict(type='list', elements='str', required=False, no_log=False),
+        full_access_keys=dict(type='list', elements='str', required=False, default=[], no_log=False),
         name=dict(type='str', required=True),
         quota=dict(type='int', required=False),
         quota_enabled=dict(type='bool', required=False, default=False),
