@@ -102,6 +102,38 @@ options:
         choices: [ eu, us ]
         required: false
         default: eu
+    compaction_enabled:
+        description:
+            "Enable compaction for this repo."
+        required: false
+        type: bool
+        default: false
+    compaction_interval:
+        description:
+            "Interval at which compaction is performed."
+        required: false
+        type: int
+        default: 6
+    compaction_interval_unit:
+        description:
+            "Unit of time for the compaction interval."
+        required: false
+        type: str
+        choices: [ days, weeks, months ]
+        default: weeks
+    compaction_hour:
+        description:
+            "Hour of the day when compaction is scheduled."
+        required: false
+        type: int
+        default: 14
+    compaction_hour_timezone:
+        description:
+            "Timezone for the compaction hour."
+        required: false
+        type: str
+        default: CET
+
 author:
     Andy Hawkins (@adhawkins)
 '''
@@ -256,13 +288,21 @@ def reposMatch(repo1, repo2):
         if repo1['quota'] != repo2['quota']:
             return False
 
+    if repo1['compactionEnabled'] and repo2['compactionEnabled']:
+        if repo1['compactionInterval'] != repo2['compactionInterval'] or \
+           repo1['compactionIntervalUnit'] != repo2['compactionIntervalUnit'] or \
+           repo1['compactionHour'] != repo2['compactionHour'] or \
+           repo1['compactionHourTimezone'] != repo2['compactionHourTimezone']:
+            return False
+
     return repo1['quotaEnabled'] == repo2['quotaEnabled'] and \
         repo1['appendOnly'] == repo2['appendOnly'] and \
         stringListToIntList(repo1['appendOnlyKeys']) == stringListToIntList(repo2['appendOnlyKeys']) and \
         stringListToIntList(repo1['fullAccessKeys']) == stringListToIntList(repo2['fullAccessKeys']) and \
         repo1['alertDays'] == repo2['alertDays'] and \
         repo1['region'] == repo2['region'] and \
-        repo1['borgVersion'] == repo2['borgVersion']
+        repo1['borgVersion'] == repo2['borgVersion'] and \
+        repo1['compactionEnabled'] == repo2['compactionEnabled']
 
 
 def runModule():
@@ -287,6 +327,11 @@ def runModule():
         quota=dict(type='int', required=False),
         quota_enabled=dict(type='bool', required=False, default=False),
         region=dict(type='str', required=False, choices=['us', 'eu'], default='eu'),
+        compaction_enabled=dict(type='bool', required=False, default=False),
+        compaction_interval=dict(type='int', required=False, default=6),
+        compaction_interval_unit=dict(type='str', required=False, choices=['days', 'weeks', 'months'], default='weeks'),
+        compaction_hour=dict(type='int', required=False, default=14),
+        compaction_hour_timezone=dict(type='str', required=False, default='CET'),
     )
 
     required_if = [
@@ -348,6 +393,11 @@ def runModule():
                 appendOnlyKeys=module.params['append_only_keys'],
                 fullAccessKeys=module.params['full_access_keys'],
                 alertDays=module.params['alert_days'],
+                compactionEnabled=module.params['compaction_enabled'],
+                compactionInterval=module.params['compaction_interval'],
+                compactionIntervalUnit=module.params['compaction_interval_unit'],
+                compactionHour=module.params['compaction_hour'],
+                compactionHourTimezone=module.params['compaction_hour_timezone'],
                 region=module.params['region'],
                 borgVersion=borgbaseVersions[module.params['borg_version']],
             )
