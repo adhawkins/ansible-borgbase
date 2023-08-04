@@ -75,6 +75,11 @@ query repoList {
         appendOnly
         appendOnlyKeys
         fullAccessKeys
+        compactionEnabled
+        compactionInterval
+        compactionIntervalUnit
+        compactionHour
+        compactionHourTimezone
     }
 }
 '''
@@ -87,6 +92,11 @@ mutation repoAdd(
   $appendOnlyKeys: [String]
   $fullAccessKeys: [String]
   $alertDays: Int
+  $compactionEnabled: Boolean
+  $compactionInterval: Int
+  $compactionIntervalUnit: String
+  $compactionHour: Int
+  $compactionHourTimezone: String
   $region: String!
   $borgVersion: String
   ) {
@@ -97,6 +107,11 @@ mutation repoAdd(
       appendOnlyKeys: $appendOnlyKeys
       fullAccessKeys: $fullAccessKeys
       alertDays: $alertDays
+      compactionEnabled: $compactionEnabled
+      compactionInterval: $compactionInterval
+      compactionIntervalUnit: $compactionIntervalUnit
+      compactionHour: $compactionHour
+      compactionHourTimezone: $compactionHourTimezone
       region: $region
       borgVersion: $borgVersion
     ) {
@@ -119,6 +134,11 @@ mutation repoEdit(
   $appendOnlyKeys: [String]
   $fullAccessKeys: [String]
   $alertDays: Int
+  $compactionEnabled: Boolean
+  $compactionInterval: Int
+  $compactionIntervalUnit: String
+  $compactionHour: Int
+  $compactionHourTimezone: String
   $region: String
   $borgVersion: String
   ) {
@@ -130,6 +150,11 @@ mutation repoEdit(
       appendOnlyKeys: $appendOnlyKeys
       fullAccessKeys: $fullAccessKeys
       alertDays: $alertDays
+      compactionEnabled: $compactionEnabled
+      compactionInterval: $compactionInterval
+      compactionIntervalUnit: $compactionIntervalUnit
+      compactionHour: $compactionHour
+      compactionHourTimezone: $compactionHourTimezone
       region: $region
       borgVersion: $borgVersion
     ) {
