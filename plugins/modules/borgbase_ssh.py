@@ -218,9 +218,15 @@ def runModule():
 
     stateExists = (module.params['state'] == 'present')
 
+    # bugfix to make api keys usable: UnboundLocalError: local variable 'loginResult' referenced before assignment
+    loginResult = dict(
+        success=False,
+        errors=[]
+    )
+
     if module.params['email'] and module.params['password']:
         loginResult = login(module.params['email'], module.params['password'])
-
+    
     if (module.params['apikey'] and (not module.params['email'] and not module.params['password'])) or loginResult['success']:
         # Get a list of keys in the account
 
