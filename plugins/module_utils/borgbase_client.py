@@ -55,7 +55,7 @@ mutation sshAdd(
 '''
 
     SSH_DELETE = '''
-mutation sshDelete($id: Int!) {
+mutation sshDelete($id: String!) {
   sshDelete(id: $id) {
     ok
   }

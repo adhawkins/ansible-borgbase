@@ -253,7 +253,7 @@ def runModule():
 
             if not module.check_mode:
                 if deleteRequired:
-                    deleteResult = deleteKey(int(foundKey['id']), apiKey=module.params['apikey'])
+                    deleteResult = deleteKey(foundKey['id'], apiKey=module.params['apikey'])
                     if not deleteResult['success']:
                         result['msg'] = ' '
 
